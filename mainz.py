@@ -109,26 +109,26 @@ def parse_meals(canteen, url, display):
 	  if v['class'][0] == 'speiseplan_date':
 		  # Print the String of Date
 		  # Format: Montag, 12. August 2020
-		  speisen += "<day date='"+ str(v.string).strip() +"'>" 
+		  speisen += "<day date='"+ str(v.string).strip() +"'> \n"
 		  		  
 	  if v['class'][0] == 'speiseplan_bldngall_name':
 		  # Get Mensa Name
-		  speisen += "<mensa name='" + str(v.string).strip() +"'>"
+		  speisen += "\t<mensa name='" + str(v.string).strip() +"'> \n"
 		  
 	  if v['class'][0] == 'speiseplancounter':
 		  # Print the Counter
 		  # It is the category in the elements
 		  # Format: Ausgabe X (X = Number)
 		  # str(v.string).strip()
-		  continue
+		  speisen += "\t<category>" + str(v.string).strip() + "</category> \n"
 		  
 	  if v['class'][0] == 'menuspeise':
 		  # Name des Gerichts
-		  speisen += "<meal>"
+		  speisen += "\t\t<meal> \n"
 		  
-		  speisen += "<name>" + str(v.find('div', class_="speiseplanname").string).strip() + "</name>"
+		  speisen += "\t\t\t<name>" + str(v.find('div', class_="speiseplanname").string).strip() + "</name> \n"
 		  
-		  speisen += "</meal>"	    
+		  speisen += "\t\t</meal> \n"	    
 		  			
 		  # Preis aus v extrahieren
 		  # 3,40 € / 5,65 €
@@ -137,6 +137,6 @@ def parse_meals(canteen, url, display):
 
 	# Find and convert Legend
 
-speisen = parse_meals('2', url, '1')
+speisen = parse_meals('0', url, '2')
 
 print(speisen)
