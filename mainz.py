@@ -133,9 +133,12 @@ def parse_meals(canteen, url, display):
 		  		
 		  notes = [span['title'] for span in meal_data.find_all('span', 'tooltip')]  	
 		  notes += [img['title'] for img in meal_data.find_all('img')]
-		  prices = price_regex.findall(meal_data.find('span', 'price').text)
+		  
 		  # Preis aus v extrahieren
 		  # 3,40 € / 5,65 €
+		  prices = price_regex.findall(str(v))
+		  speisen += "\t\t\t<price role='student'>" + prices[0].replace(',', '.') + "</price> \n"
+		  speisen += "\t\t\t<price role='employee'>" + prices[1].replace(',', '.') + "</price> \n"
 		  
 	return speisen
 
