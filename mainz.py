@@ -1,14 +1,13 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup as parse
+from xml.etree import ElementTree
 import re
 import datetime
 
-day_regex = re.compile('(?P<date>\d{4}-\d{2}-\d{2})')
+
 price_regex = re.compile('(?P<price>\d+[,.]\d{2}) ?€')
-notes_regex = re.compile('\[(?:(([A-Za-z0-9]+),?)+)\]$')
-legend_number_regex = re.compile('\((?P<number>\d+)\)\s+-?\s*(?P<text>.+?)(?:\||$)')
-legend_letters_regex = re.compile('(?P<tag>[A-Z]+)\s+-?\s*(?P<text>.+?)(?:\||$)')
-closed_regex = re.compile('Geschlossen\s+.+?(?P<from>\d+\.\d+\.).+?(?P<to>\d+\.\d+\.)')
+remove_notes_regex = re.compile('\((\w+,?)+\w+\)')
+extract_notes_regex = re.compile('((?<=,)|(?<=\())\w{1,2}')
 
 url = 'https://www.studierendenwerk-mainz.de/speiseplan/frontend/index.php'
 
@@ -124,12 +123,17 @@ def parse_meals(canteen, url, display):
 		  
 	  if v['class'][0] == 'menuspeise':
 		  # Name des Gerichts
-		  speisen += "\t\t<meal> \n"
+		  name = str(v.find('div', class_="speiseplanname").string).strip()
+		  		  
 		  
-		  speisen += "\t\t\t<name>" + str(v.find('div', class_="speiseplanname").string).strip() + "</name> \n"
-		  
-		  speisen += "\t\t</meal> \n"	    
-		  			
+		  # Remove the notes from Mealname and delete unnecessary spaces
+		  name = ' '.join(re.sub(r'\((\w+,?)+\w+\)', '', name).split())
+		  if len(name) > 250:
+                    name = name[:245] + '...' 
+		  		
+		  notes = [span['title'] for span in meal_data.find_all('span', 'tooltip')]  	
+		  notes += [img['title'] for img in meal_data.find_all('img')]
+		  prices = price_regex.findall(meal_data.find('span', 'price').text)
 		  # Preis aus v extrahieren
 		  # 3,40 € / 5,65 €
 		  
